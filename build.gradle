@@ -1,0 +1,80 @@
+plugins {
+	id 'java'
+	id 'jacoco'
+	id 'eclipse'
+	id "org.sonarqube" version "3.4.0.2513"
+	id 'com.palantir.docker' version '0.34.0'
+	id 'com.palantir.docker-run' version '0.34.0'
+	id "com.diffplug.spotless" version "6.11.0"
+	id 'org.springframework.boot' version '3.0.0-M4'
+	id 'io.spring.dependency-management' version '1.0.12.RELEASE'
+}
+
+group = 'com.jonnyi'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven { url 'https://repo.spring.io/milestone' }
+}
+
+dependencies {
+	// implementation 'org.springframework.boot:spring-boot-starter-data-redis-reactive'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+}
+
+docker {
+	// https://www.youtube.com/watch?v=LGSYlOvc8ug
+	name "${project.name}:${project.version}"
+	files "$buildDir/libs/${project.name}-${project.version}.jar"
+	buildArgs([JAR_FILE: bootJar.archiveFileName.get()])
+}
+
+dockerRun {
+    name "${project.name}"
+    image "${project.name}:${project.version}"
+    ports '8080:8080'
+    clean true //when container is stopped it will be removed.
+    daemonize false
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+	finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+	dependsOn test // tests are required to run before generating the report
+	
+	reports {
+		xml.enabled true
+	}
+}
+
+tasks.register('debug') {
+	doLast {
+		println "${project.name}"
+		println "${project.version}"
+	}
+}
+
+spotless {
+	java {
+		importOrder()
+		removeUnusedImports()
+		palantirJavaFormat()
+	}
+}
