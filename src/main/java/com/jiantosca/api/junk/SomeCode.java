@@ -15,6 +15,6 @@ public class SomeCode {
     public String doSomething() {
         var list = List.of("one", "two", "three");
         list.forEach(log::debug);
-        return "didSomething for OneMore with id: " + id;
+        return "didSomething for SomeCode with id: " + id;
     }
 }

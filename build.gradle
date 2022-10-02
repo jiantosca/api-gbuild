@@ -1,6 +1,7 @@
 plugins {
 	id 'java'
 	id 'jacoco'
+	id 'groovy'
 	id 'eclipse'
 	id "org.sonarqube" version "3.4.0.2513"
 	id 'com.palantir.docker' version '0.34.0'
@@ -34,6 +35,15 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'io.projectreactor:reactor-test'
+	
+
+//	testImplementation 'org.codehaus.groovy:groovy-all:3.0.13'
+//	testImplementation 'org.spockframework:spock-core:2.3-groovy-3.0'
+//	testImplementation 'org.spockframework:spock-spring:2.3-groovy-3.0'
+	
+	testImplementation 'org.apache.groovy:groovy:4.0.5'
+	testImplementation 'org.spockframework:spock-core:2.3-groovy-4.0'
+	testImplementation 'org.spockframework:spock-spring:2.3-groovy-4.0'
 }
 
 docker {
@@ -60,9 +70,19 @@ jacocoTestReport {
 	dependsOn test // tests are required to run before generating the report
 	
 	reports {
-		xml.enabled true
+		//fixing deprecation...
+		//xml.enabled true
+		xml.required = true
 	}
 }
+
+//sometimes handle for local testing.
+//test {
+//	testLogging {
+//		outputs.upToDateWhen {false}
+//		showStandardStreams = true
+//	}
+//}
 
 tasks.register('debug') {
 	doLast {
